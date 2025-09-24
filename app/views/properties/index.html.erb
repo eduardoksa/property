@@ -1,0 +1,70 @@
+<div class="max-w-6xl mx-auto px-4 py-8">
+  <div class="mb-6 flex justify-between items-center">
+    <h1 class="text-2xl font-bold text-gray-800">Properties (<%= @total_properties %> total)</h1>
+    <div class="text-sm text-gray-600">
+      Showing <%= @pagy.from %>-<%= @pagy.to %> of <%= @total_properties %>
+    </div>
+  </div>
+  
+  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+    <% @properties.each do |property| %>
+      <div class="bg-white rounded-lg shadow-lg overflow-hidden">
+        <div class="relative aspect-video">
+          <% if property.cover_photo&.file&.attached? %>
+            <%= image_tag property.cover_photo.file.variant(resize_to_fill: [200, 200]), class: "w-20 h-20 object-cover" %>
+          <% else %>
+            <div class="w-20 h-20 bg-gray-100 flex items-center justify-center">
+              <p class="text-xs text-gray-500">No cover photo</p>
+            </div>
+          <% end %>
+        </div>
+
+        <div class="p-4">
+          <h3 class="text-xl font-semibold mb-4"><%= property.name %></h3>
+          
+          <% if property.photos.any? %>
+            <div class="flex gap-2 overflow-x-auto">
+              <% property.photos.reject { |p| p == property.cover_photo }.each do |photo| %>
+                <% if photo.file.attached? %>
+                  <div class="w-20 h-20 flex-none">
+                    <%= image_tag photo.file.variant(resize_to_fill: [200, 200]), class: "w-20 h-20 object-cover rounded-md" %>
+                  </div>
+                <% end %>
+              <% end %>
+            </div>
+          <% end %>
+        </div>
+      </div>
+    <% end %>
+  </div>
+
+  <!-- Paginação -->
+  <% if @pagy.pages > 1 %>
+    <div class="mt-8 flex justify-center">
+      <nav class="flex items-center gap-2">
+        <% if @pagy.prev %>
+          <%= link_to 'Previous', properties_path(page: @pagy.prev),
+              class: 'px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200',
+              'data-turbo-frame': '_top' %>
+        <% end %>
+        
+        <% @pagy.series.each do |item| %>
+          <% if item.is_a?(Integer) %>
+            <%= link_to item, properties_path(page: item),
+                class: "px-4 py-2 rounded-lg #{@pagy.page == item ? 
+                'bg-blue-500 text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'}",
+                'data-turbo-frame': '_top' %>
+          <% elsif item.is_a?(String) %>
+            <span class="px-4 py-2 text-gray-400"><%= item %></span>
+          <% end %>
+        <% end %>
+        
+        <% if @pagy.next %>
+          <%= link_to 'Next', properties_path(page: @pagy.next),
+              class: 'px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200',
+              'data-turbo-frame': '_top' %>
+        <% end %>
+      </nav>
+    </div>
+  <% end %>
+</div>
